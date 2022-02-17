@@ -9,7 +9,7 @@ userRouter.route('/').get(userController.get_all_users).post(userController.new_
 userRouter
   .route('/:id')
   .get(userController.get_single_user)
-  .patch(userController.update_user)
+  .patch(userController.update_user) 
   .delete(userController.delete_user);
 
 module.exports = userRouter;

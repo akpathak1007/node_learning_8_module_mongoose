@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.param('id', tourController.checkId);
 
-router.route('/').get(tourController.get_all_tours).post(tourController.new_tour);
+router.route('/').get(tourController.get_all_tours).post( tourController.checkBody ,tourController.new_tour);
 router
   .route('/:id')
   .get(tourController.get_single_tour)

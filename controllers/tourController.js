@@ -13,6 +13,16 @@ exports.checkId = (req, res, next, val) => {
   }
   next();
 };
+// todo: check body middleware
+exports.checkBody  = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'ERROR',
+      message: 'Price or name is invalid.'
+    })
+  }
+  next();
+}
 
 // Todo: Delete tour
 exports.delete_tour = (req, res) => {

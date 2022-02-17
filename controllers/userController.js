@@ -1,3 +1,5 @@
+
+
 // Todo: Create New user
 exports.new_user = (req, res) => {
   return res.status(201).json({

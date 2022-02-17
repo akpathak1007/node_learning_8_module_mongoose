@@ -1,9 +1,19 @@
 const fs = require('fs');
 
-
 /* Reading tours data from a json file */
 const jsonFile = `${__dirname}/../dev-data/data/tours-simple.json`;
 const tours = JSON.parse(fs.readFileSync(jsonFile, 'utf-8'));
+// todo: Param middleware
+exports.checkId = (req, res, next, val) => {
+  if (val > tours.length) {
+    return res.status(404).json({
+      status: 'ERROR',
+      message: 'Invalid ID',
+    });
+  }
+  next();
+};
+
 // Todo: Delete tour
 exports.delete_tour = (req, res) => {
   return res.status(204).json({
@@ -34,12 +44,6 @@ exports.get_single_tour = (req, res) => {
   const { id, userId } = req.params;
   console.log(userId);
   const tour = tours.find((el) => el.id === id * 1);
-  if (!tour) {
-    return res.status(404).json({
-      status: 'success',
-      message: 'Invalid ID',
-    });
-  }
   return res.status(200).json({
     status: 'success',
     data: {
@@ -76,4 +80,3 @@ exports.update_tour = (req, res) => {
     });
   }
 };
-

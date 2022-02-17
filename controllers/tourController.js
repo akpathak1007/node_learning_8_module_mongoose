@@ -52,7 +52,6 @@ exports.new_tour = (req, res) => {
 /* To define default params using ? . example /api/v1/tours/:id/userId?  */
 exports.get_single_tour = (req, res) => {
   const { id, userId } = req.params;
-  console.log(userId);
   const tour = tours.find((el) => el.id === id * 1);
   return res.status(200).json({
     status: 'success',

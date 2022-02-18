@@ -30,7 +30,6 @@ exports.get_all_tours = async (req, res) => {
     let query = { ...req.query };
     const willRemove = ['sort', 'page', 'limit', 'fields'];
     willRemove.forEach(el => delete query[el]);
-
     // 2. Advance Filtering
     query = JSON.stringify(query).replace(/\b(gte|lt|gt|lte)\b/g, match => `$${match}`);
     const tours = await Tour.find(JSON.parse(query));

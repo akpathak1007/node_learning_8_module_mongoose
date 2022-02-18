@@ -52,6 +52,7 @@ const tourSchema = mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false
   },
 });
 module.exports = mongoose.model('Tour', tourSchema);

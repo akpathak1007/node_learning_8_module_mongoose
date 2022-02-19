@@ -2,6 +2,8 @@ const express = require('express');
 const tourController = require('./../controllers/tourController');
 const router = express.Router();
 
+router.route('/tour-stat').get(tourController.get_tours_statistics);
+router.route('/monthly-plan/:year').get(tourController.get_monthly_plan);
 router
   .route('/')
   .get(tourController.get_all_tours)

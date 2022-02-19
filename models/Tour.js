@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = mongoose.Schema(
   {
@@ -7,6 +8,15 @@ const tourSchema = mongoose.Schema(
       required: [true, 'Name is required'],
       unique: true,
       trim: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
+    secreat: {
+      type: Boolean,
+      default: false
     },
     price: {
       type: Number,
@@ -58,11 +68,49 @@ const tourSchema = mongoose.Schema(
   },
   {
     toJSON: { virtuals: true },
-    toObject: {virtuals:true}
+    toObject: { virtuals: true },
   }
 );
 tourSchema.virtual('durationWeek').get(function () {
   return this.duration / 7;
 });
 
+/**
+ * There are four types of middleware: DOCUMENT, QUERY, AGGREGATE & MODEL
+ */
+// todo: Document Middleware :
+tourSchema.pre('save', function (next) {
+  // console.log(this);
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+tourSchema.post('save', function (doc, next) {
+  console.log(doc);
+  next()
+});
+
+// todo: query middleware
+tourSchema.pre(/^find/, function (next) {
+  this.find({ secreat: { $ne: true } });
+  next();
+});
+
+tourSchema.post(/^find/, function (doc, next) {
+  next()
+});
+
+// todo: Aggregate middleware
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { secreat: { $ne: true} } });
+  // console.log(this.pipeline());
+  // this.aggregate({
+  //   $match: {
+  //     secreat: { $ne: true }
+  //   }
+  // });
+  next();
+});
+tourSchema.post('aggregate', function (doc, next) {
+  next();
+})
 module.exports = mongoose.model('Tour', tourSchema);

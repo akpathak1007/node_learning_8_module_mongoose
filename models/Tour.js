@@ -8,6 +8,8 @@ const tourSchema = mongoose.Schema(
       required: [true, 'Name is required'],
       unique: true,
       trim: true,
+      minLength: 10,
+      maxLength: 100,
     },
     slug: {
       type: String,
@@ -16,14 +18,21 @@ const tourSchema = mongoose.Schema(
     },
     secreat: {
       type: Boolean,
-      default: false
+      default: false,
     },
     price: {
       type: Number,
       required: [true, 'Price is required'],
     },
+    // 
     priceDiscount: {
       type: Number,
+      validate: {
+        validator: function (val) {
+          return val < this.price ? true : false;
+        },
+        message: 'Discount can not be greater ({VALUE}) then price'
+      }
     },
     duration: {
       type: Number,
@@ -36,6 +45,10 @@ const tourSchema = mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'Tour must have difficulty field'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Value can be either easy, medium and difficult. ',
+      },
     },
     summary: {
       type: String,
@@ -53,6 +66,8 @@ const tourSchema = mongoose.Schema(
     ratingAverage: {
       type: Number,
       default: 4.5,
+      min: 1,
+      max: 5,
     },
     ratingQuntity: {
       type: Number,
@@ -102,12 +117,6 @@ tourSchema.post(/^find/, function (doc, next) {
 // todo: Aggregate middleware
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secreat: { $ne: true} } });
-  // console.log(this.pipeline());
-  // this.aggregate({
-  //   $match: {
-  //     secreat: { $ne: true }
-  //   }
-  // });
   next();
 });
 tourSchema.post('aggregate', function (doc, next) {

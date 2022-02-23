@@ -2,6 +2,7 @@ const { json } = require('express/lib/response');
 const Tour = require('../models/Tour');
 const APIFeatures = require('../utils/api-features.js');
 const catchAsync = require('../utils/catch-async');
+const AppError = require('../utils/app-error');
 
 exports.get_monthly_plan = catchAsync(async (req, res) => {
   const year = req.params.year * 1;
@@ -106,18 +107,24 @@ exports.get_all_tours = catchAsync(async (req, res) => {
   });
 });
 /**  Delete tour*/
-exports.delete_tour = catchAsync(async (req, res) => {
+exports.delete_tour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  await Tour.findByIdAndDelete(id);
+  const tour = await Tour.findByIdAndDelete(id);
+  if (!tour) {
+    return next(new AppError(`No data found with this ID.`, 404));
+  }
   return res.status(204).json({
     status: 'SUCCESS',
     data: null,
   });
 });
 /** Get a single tours */
-exports.get_single_tour = catchAsync(async (req, res) => {
+exports.get_single_tour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const tour = await Tour.findById(id);
+  if (!tour) {
+    return next(new AppError(`No data found with this ID.`, 404));
+  }
   return res.status(200).json({
     status: 'success',
     data: {
@@ -126,13 +133,16 @@ exports.get_single_tour = catchAsync(async (req, res) => {
   });
 });
 /** Update a tour */
-exports.update_tour = catchAsync(async (req, res) => {
+exports.update_tour = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { body } = req;
   const tour = await Tour.findByIdAndUpdate(id, body, {
     new: true,
     runValidators: true,
   });
+  if (!tour) {
+    return next(new AppError(`No data found with this ID.`, 404));
+  }
   return res.status(200).json({
     status: 'SUCCESS',
     message: 'Update successfully.',

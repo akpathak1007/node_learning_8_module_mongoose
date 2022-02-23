@@ -1,19 +1,25 @@
 const env = require('dotenv');
 const mongoose = require('mongoose');
 
-env.config({ path: './config.env' });
+if (process.env.NODE_ENV === 'production') {
+  env.config({ path: './config-pro.env' });
+} else {
+  env.config({ path: './config.env' });
+}
+
 const app = require('./app');
 mongoose
   .connect(process.env.DATABASE, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
+    maxPoolSize:10
   })
   .then((con) => {
     console.log('Database has connected on 27017 port...');
   });
 
-const port = 3000;
+const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`Server is listening on ${port}...`);
 });

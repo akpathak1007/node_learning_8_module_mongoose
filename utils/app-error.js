@@ -1,5 +1,6 @@
-class ErrorHandle extends Error{
+class AppError extends Error{
   constructor(message, statusCode) {
+    console.log(statusCode);
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'FAIL': 'ERROR';
@@ -8,4 +9,4 @@ class ErrorHandle extends Error{
   }
 }
 
-module.exports = ErrorHandle;
+module.exports = AppError;

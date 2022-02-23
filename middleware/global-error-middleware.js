@@ -1,9 +1,13 @@
 const AppError = require('./../utils/app-error');
 
 const castErrorHandler = (err) => {
-  const message = `Invalid value ${err.value} for ${err.path}`;
+  const message = `Invalid value: ${err.value} for ${err.path}`;
   return new AppError(message, 400);
 };
+const validationErrorHandler = err => {
+  const error = Object.values(err.errors).map(({properties}) => `${properties.path} : ${properties.message}`);
+  return new AppError(error.join(' '), 400);
+}
 const devError = (err, res) => {
   const { status, statusCode, message, stack } = err;
   return res.status(statusCode || 500).json({
@@ -34,6 +38,7 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     let error = null;
     if (err.name === 'CastError') error = castErrorHandler(err);
+    if (err.name === 'ValidationError') error = validationErrorHandler(err);
     prodError(error, res);
   }
 };

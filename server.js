@@ -1,6 +1,10 @@
 const env = require('dotenv');
 const mongoose = require('mongoose');
-
+process.on('uncaughtException', (err) => {
+  console.log(err.name, err.message);
+  console.log('Unhandled Promise Rejection');
+  process.exit(1);
+})
 if (process.env.NODE_ENV === 'production') {
   env.config({ path: './config-pro.env' });
 } else {

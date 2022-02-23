@@ -1,8 +1,12 @@
-const { exists } = require("../models/Tour");
+const AppError = require('./../utils/app-error');
 
+const castErrorHandler = (err) => {
+  const message = `Invalid value ${err.value} for ${err.path}`;
+  return new AppError(message, 400);
+};
 const devError = (err, res) => {
   const { status, statusCode, message, stack } = err;
-  return res.status(statusCode||500).json({
+  return res.status(statusCode || 500).json({
     status: status || 'ERROR',
     message: message,
     err: err,
@@ -17,7 +21,6 @@ const prodError = (err, res) => {
       message: message,
     });
   } else {
-    console.error(err);
     return res.status(500).json({
       status: 'ERROR',
       message: 'Something went wrong.',
@@ -26,10 +29,11 @@ const prodError = (err, res) => {
 };
 
 module.exports = (err, req, res, next) => {
-  // console.log(err);
   if (process.env.NODE_ENV === 'development') {
     devError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    prodError(err, res);
+    let error = null;
+    if (err.name === 'CastError') error = castErrorHandler(err);
+    prodError(error, res);
   }
 };

@@ -11,6 +11,9 @@ mongoose
   })
   .then((con) => {
     console.log('Database has connected on 27017 port...');
+  })
+  .catch((err) => {
+    console.log(err);
   });
 
 const port = 3000;

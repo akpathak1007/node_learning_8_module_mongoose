@@ -111,7 +111,6 @@ exports.create_tour = async (req, res) => {
 /** Get all tours */
 exports.get_all_tours = async (req, res) => {
   try {
-    const count = await Tour.countDocuments();
     const features = new APIFeatures(Tour.find(), req.query)
       .limitFields()
       .sort()

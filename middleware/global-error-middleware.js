@@ -18,8 +18,8 @@ const devError = (err, res) => {
   });
 };
 const prodError = (err, res) => {
-  const { status, statusCode, message, isOpperational } = err;
-  if (isOpperational) {
+  if (err.isOpperational) {
+    const { status, statusCode, message } = err;
     return res.status(statusCode).json({
       status: status || 'ERROR',
       message: message,
@@ -36,7 +36,7 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     devError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    let error = null;
+    let error = {...err};
     if (err.name === 'CastError') error = castErrorHandler(err);
     if (err.name === 'ValidationError') error = validationErrorHandler(err);
     prodError(error, res);

@@ -1,10 +1,11 @@
 const env = require('dotenv');
 const mongoose = require('mongoose');
-process.on('uncaughtException', (err) => {
-  console.log(err.name, err.message);
-  console.log('Unhandled Promise Rejection');
-  process.exit(1);
-})
+// ? Global unhandled exception
+// process.on('uncaughtException', (err) => {
+//   console.log(err.name, err.message);
+//   console.log('Unhandled Promise Rejection');
+//   process.exit(1);
+// })
 if (process.env.NODE_ENV === 'production') {
   env.config({ path: './config-pro.env' });
 } else {
@@ -31,10 +32,11 @@ const server = app.listen(port, () => {
   console.log(`Server is listening on ${port}...`);
 });
 
-process.on('unhandledRejection', (err) => {
-  console.log(err.name, err.message);
-  console.log('Unhandled Promise Rejection');
-  server.close(() => {
-    process.exit(1);
-  });
-});
+// ? Global unhandled promise rejections
+// process.on('unhandledRejection', (err) => {
+//   console.log(err.name, err.message);
+//   console.log('Unhandled Promise Rejection');
+//   server.close(() => {
+//     process.exit(1);
+//   });
+// });

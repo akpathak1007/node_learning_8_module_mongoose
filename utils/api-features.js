@@ -18,7 +18,6 @@ class APIFeatures {
   sort() {
     if (this.queryString.sort) {
       let sortQuery = this.queryString.sort;
-      console.log(this.queryString);
       sortQuery = sortQuery.replace(',', ' ');
       this.query.sort(sortQuery);
     } else {

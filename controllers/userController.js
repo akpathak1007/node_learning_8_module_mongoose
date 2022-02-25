@@ -1,4 +1,5 @@
-
+const User = require('../models/User');
+const success = require('../utils/success-message');
 
 // Todo: Create New user
 exports.new_user = (req, res) => {
@@ -9,12 +10,9 @@ exports.new_user = (req, res) => {
   });
 };
 // Todo: Get all users
-exports.get_all_users = (req, res) => {
-  return res.status(200).json({
-    status: 'SUCCESS',
-    message: 'this route is not implemeted yet.',
-    data: null,
-  });
+exports.get_all_users = async (req, res) => {
+  const users  = await User.find();
+  success(res, 'User found successfully.' ,users);
 };
 // Todo: Get a single user
 exports.get_single_user = (req, res) => {

@@ -6,11 +6,24 @@ const success = require('../utils/success-message');
 const error = require('../utils/app-error');
 const { use } = require('express/lib/router');
 /**
+ * ? Forget Password Functionality
+ */
+exports.forgetPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(error('Email is required.'));
+  const user = await User.findOne({ email: email });
+  if (!user) return next('No user found with this email', 404);
+  const resetToken  = user.getRestPasswordToken();  
+  await user.save({validateBeforeSave: false})
+
+  return success(res, "Verify email has sent.");
+});
+/**
  * ? Method to create token and add user id to payload.
  */
 const signToken = async (userId) => {
   return await jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
+    expiresIn: process.env.JWT_EXPIRE_TIME,
   });
 };
 /**
@@ -40,6 +53,6 @@ exports.signup = catchAsync(async (req, res) => {
     password,
     confirmPassword,
   });
-  const token = signToken(user._id);
+  const token = await signToken(user._id);
   return success(res, 'User created successfully', { token, user });
 });

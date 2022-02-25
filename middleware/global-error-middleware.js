@@ -13,11 +13,11 @@ const devError = (err, res) => {
   const { status, statusCode, message, stack, data, isOpperational } = err;
   return res.status(statusCode || 500).json({
     status: status || 'ERROR',
-    statusCode,
-    isOpperational,
+    statusCode: statusCode ? statusCode : 500 ,
+    isOpperational: isOpperational? isOpperational : false,
     message: message,
     data,
-    err: err,
+    err: isOpperational ? undefined : err,
     stack: stack,
   });
 };

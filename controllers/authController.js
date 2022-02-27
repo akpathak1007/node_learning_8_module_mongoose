@@ -5,8 +5,7 @@ const catchAsync = require('../utils/catch-async');
 const User = require('../models/User');
 const success = require('../utils/success-message');
 const error = require('../utils/app-error');
-const sendEmail = require('../utils/send-email');
-const emailEvent = require('../events/emailEvent');
+const {forgetPassword} = require('../utils/send-email');
 
 /**
  * ? Forget Password Functionality
@@ -17,9 +16,8 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: email });
   if (!user) return next('No user found with this email', 404);
   const resetToken = user.getRestPasswordToken();
-  await user.save({ validateBeforeSave: false });
-  // console.log(user);
-  console.log(emailEvent.emit('forget-password', { to: user.email, name: user.name }));
+  await user.save({ validateBeforeSave: false, name: user.name, resetToken });
+  await forgetPassword({ to: user.email });
   return success(res, 'Verify email has sent.');
 });
 /**

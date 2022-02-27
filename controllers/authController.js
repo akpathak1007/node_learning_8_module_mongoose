@@ -1,11 +1,10 @@
 const jwt = require('jsonwebtoken');
-const fs = require('fs');
 
 const catchAsync = require('../utils/catch-async');
 const User = require('../models/User');
 const success = require('../utils/success-message');
 const error = require('../utils/app-error');
-const {forgetPassword} = require('../utils/send-email');
+const { forgetPassword } = require('../utils/send-email');
 
 /**
  * ? Forget Password Functionality
@@ -16,8 +15,13 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: email });
   if (!user) return next('No user found with this email', 404);
   const resetToken = user.getRestPasswordToken();
-  await user.save({ validateBeforeSave: false, name: user.name, resetToken });
-  await forgetPassword({ to: user.email });
+  await user.save({ validateBeforeSave: false });
+  const info = await forgetPassword({
+    to: user.email,
+    name: user.name,
+    resetToken,
+  });
+  console.log(info);
   return success(res, 'Verify email has sent.');
 });
 /**

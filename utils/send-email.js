@@ -28,20 +28,21 @@ const sendEmail = async (options) => {
 /**
  * ? Forget password email
  */
- exports.forgetPassword = async (options) => {
-  const template = await readFile(
+exports.forgetPassword = async (options) => {
+  let template = await readFile(
     './resource/templates/forget-password.html',
     'utf-8'
   );
-   template.replace('{{%name}}', options.name);
-   console.log(template);
-   template.replace('{{%url}}', 'www.google.com');
-   const result = await sendEmail({
+  const url = process.env.URL.concat(`/overview.html`)
+  console.log(url);
+  template = template.replace('{{$name}}', options.name);
+  template = template.replace('{{$url}}', url);
+  const result = await sendEmail({
     to: options.to,
     subject: 'Natours Forget Password',
     text: '',
     html: template,
-   });
-   return result;
- }
+  });
+  return result;
+};
 // module.exports = sendEmail;

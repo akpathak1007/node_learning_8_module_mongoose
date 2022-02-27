@@ -1,20 +1,25 @@
 const mailer = require('nodemailer');
+
+
 /* Transporter object */
-const transporter = mailer.createTransport({
-  host: process.env.SMPT_HOST,
-  port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_IS_SECURE,
+const config = {
+  service: 'gmail',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
-});
+};
+const transporter = mailer.createTransport(config);
 
+/**
+ * Pass options object as an argument containing properies to, subject, text, html
+ * @param options
+ */
 module.exports = async (options) => {
   /* Sending mail with transporter object */
   let info = await transporter.sendMail({
-    from: 'Midnal sharma <me@mycompany.com>',
-    to: options.email,
+    from: 'Anuj Pathak <me@mycompany.com>',
+    to: options.to,
     subject: options.subject,
     text: options.text,
     html: options.html,

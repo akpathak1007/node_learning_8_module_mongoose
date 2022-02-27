@@ -1,5 +1,10 @@
 const env = require('dotenv');
 const mongoose = require('mongoose');
+const fs = require('fs');
+
+// fs.readFile('./resource/forget-password.html', 'utf-8', (err, data) => {
+//   console.log(data);
+//  });
 // ? Global unhandled exception
 // process.on('uncaughtException', (err) => {
 //   console.log(err.name, err.message);
@@ -18,7 +23,7 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
-    maxPoolSize:10
+    maxPoolSize: 10,
   })
   .then((con) => {
     console.log('Database has connected on 27017 port...');
@@ -29,7 +34,9 @@ mongoose
 
 const port = process.env.PORT;
 const server = app.listen(port, () => {
-  console.log(`Server is listening on ${port}...`);
+  console.log(
+    `${process.env.NODE_ENV.toUpperCase()} Server is listening on ${port}...`
+  );
 });
 
 // ? Global unhandled promise rejections

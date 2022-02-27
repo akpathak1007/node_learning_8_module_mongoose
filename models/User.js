@@ -3,6 +3,9 @@ const validator = require('validator');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
+/**
+ * Defining User Modal Schema
+ */
 const userSchema = mongoose.Schema({
   name: {
     required: true,
@@ -46,22 +49,27 @@ const userSchema = mongoose.Schema({
   passwordResetToken: String,
   passwordResetTokenExpire: Date,
 });
-
+/**
+ * Middleware to encrypt the password.
+ */
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
 });
-/* To compare a old user's password with new one */
+/** 
+ * To compare a old user's password with new one.
+ */
 userSchema.method(
   'comparePassword',
   async (candidatePassword, userPassword) => {
     return await bcrypt.compare(candidatePassword, userPassword);
   }
 );
-/* Create reset password token */
+/**
+ * Create reset password token.
+ */
 userSchema.method('getRestPasswordToken', async function (){
-  console.log(this);
   const resetToken = crypto.randomBytes(30).toString('hex');
   this.passwordResetToken = crypto
     .createHash('sha256')

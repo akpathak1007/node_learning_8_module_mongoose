@@ -91,7 +91,6 @@ exports.create_tour = catchAsync(async (req, res, next) => {
 });
 /** Get all tours */
 exports.get_all_tours = catchAsync(async (req, res) => {
-  console.log(req.body._id);
   const count = await Tour.countDocuments();
   const features = new APIFeatures(Tour.find(), req.query)
     .limitFields()

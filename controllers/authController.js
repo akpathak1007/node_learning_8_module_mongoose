@@ -1,10 +1,13 @@
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 
 const catchAsync = require('../utils/catch-async');
 const User = require('../models/User');
 const success = require('../utils/success-message');
 const error = require('../utils/app-error');
-const { use } = require('express/lib/router');
+const sendEmail = require('../utils/send-email');
+const emailEvent = require('../events/emailEvent');
+
 /**
  * ? Forget Password Functionality
  */
@@ -13,10 +16,11 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   if (!email) return next(error('Email is required.'));
   const user = await User.findOne({ email: email });
   if (!user) return next('No user found with this email', 404);
-  const resetToken  = user.getRestPasswordToken();  
-  await user.save({validateBeforeSave: false})
-
-  return success(res, "Verify email has sent.");
+  const resetToken = user.getRestPasswordToken();
+  await user.save({ validateBeforeSave: false });
+  // console.log(user);
+  console.log(emailEvent.emit('forget-password', { to: user.email, name: user.name }));
+  return success(res, 'Verify email has sent.');
 });
 /**
  * ? Method to create token and add user id to payload.
@@ -35,7 +39,7 @@ exports.signin = catchAsync(async (req, res, next) => {
     return next(error('Password and Email must be given.'));
   }
   const user = await User.findOne({ email }).select('password');
-  if (!user || ! await user.comparePassword(password, user.password)) {
+  if (!user || !(await user.comparePassword(password, user.password))) {
     return next(error('Please enter valid password'));
   }
   const { _id } = user;

@@ -69,15 +69,14 @@ userSchema.method(
 /**
  * Create reset password token.
  */
-userSchema.method('getRestPasswordToken', async function (){
+userSchema.method('getRestPasswordToken', function (){
   const resetToken = crypto.randomBytes(30).toString('hex');
   this.passwordResetToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  this.passwordResetTokenExpire = Date.now() + 10 * 60 + 1000;
-  console.log( resetToken ,this.passwordResetToken);
-  
+  console.log({resetToken}, this.passwordResetToken);
+  this.passwordResetTokenExpire = Date.now() + 10 * 60 * 1000;
   return resetToken;
 });
 const User = mongoose.model('User', userSchema);

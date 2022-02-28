@@ -1,10 +1,6 @@
 const env = require('dotenv');
 const mongoose = require('mongoose');
-const fs = require('fs');
 
-// fs.readFile('./resource/forget-password.html', 'utf-8', (err, data) => {
-//   console.log(data);
-//  });
 // ? Global unhandled exception
 // process.on('uncaughtException', (err) => {
 //   console.log(err.name, err.message);

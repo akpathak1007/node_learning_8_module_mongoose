@@ -33,7 +33,7 @@ exports.forgetPassword = async (options) => {
     './resource/templates/forget-password.html',
     'utf-8'
   );
-  const url = process.env.URL.concat(`/overview.html`)
+  const url = process.env.URL.concat(`/overview.html/${options.resetToken}`)
   console.log(url);
   template = template.replace('{{$name}}', options.name);
   template = template.replace('{{$url}}', url);

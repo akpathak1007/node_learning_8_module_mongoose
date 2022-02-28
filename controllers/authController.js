@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const catchAsync = require('../utils/catch-async');
 const User = require('../models/User');
@@ -6,6 +7,36 @@ const success = require('../utils/success-message');
 const error = require('../utils/app-error');
 const { forgetPassword } = require('../utils/send-email');
 
+/**
+ * Reset Password Route Handler
+ *
+ * In this type of method we stored a reset token and a expire time in database.
+ * When a user request to reset his password using forgetPassword API a token is send in email.
+ */
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const { password, confirmPassword } = req.body;
+  let { token } = req.params;
+  /* Check if user token coming in the request is exist in database or not and make sure that it is not expired. */
+  token = crypto.createHash('sha256').update(token).digest('hex');
+  console.log(new Date().toISOString());
+  const user = await User.findOne({
+    passwordResetToken: token,
+    passwordResetTokenExpire: { $gt: new Date().toISOString() },
+  });
+  console.log(user);
+  /* If no user found in the database send an error message */
+  if (!user) {
+    return next(error('Token may invalid or expired. Please try again'));
+  }
+  /* If user found reset his password with all validation */
+  user.password = password;
+  user.confirmPassword = confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetTokenExpire = undefined;
+  /* Set password updated at property */
+  await user.save();
+  return success(res, 'Password has updated successfully.');
+});
 /**
  * ? Forget Password Functionality
  */
@@ -16,12 +47,11 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   if (!user) return next('No user found with this email', 404);
   const resetToken = user.getRestPasswordToken();
   await user.save({ validateBeforeSave: false });
-  const info = await forgetPassword({
+  await forgetPassword({
     to: user.email,
     name: user.name,
     resetToken,
   });
-  console.log(info);
   return success(res, 'Verify email has sent.');
 });
 /**

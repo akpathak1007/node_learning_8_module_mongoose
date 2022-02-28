@@ -2,9 +2,19 @@ const error = require('../utils/app-error');
 const jwt =  require('jsonwebtoken');
 const { TokenExpiredError, JsonWebTokenError } = require('jsonwebtoken');
 
-const catchAsync = require('../utils/catch-async');
 const User = require('../models/User');
 
+/**
+ * It is middleware which verify where there is token available in the request or not.
+ * It verifies if the token has expired or not. if expired then send error message to user.
+ * Checks if users is still exist or not.
+ * Alter a request object add _id and user property.
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 module.exports = async (req, res, next) => {
   try {
     /* Check if authorization header is set or not */
@@ -17,7 +27,7 @@ module.exports = async (req, res, next) => {
     /* verify the token */
     const { _id } = await jwt.verify(token, process.env.JWT_SECRET);
     /* check user if it exists or not */
-    const user = await User.findById(_id);
+    const user = await User.findById(_id).select('+password');
     if (!user) {
       return next(error('Permission denied.', 404));
     }

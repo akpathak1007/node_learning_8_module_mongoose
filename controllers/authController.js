@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const catchAsync = require('../utils/catch-async');
@@ -6,22 +5,31 @@ const User = require('../models/User');
 const success = require('../utils/success-message');
 const error = require('../utils/app-error');
 const { forgetPassword } = require('../utils/send-email');
+const { signToken } = require('../utils/helper');
 
 /**
- * ? Method to create token and add user id to payload.
+ * API patch updatePassword route handler
+ * Update password when user is logged in.
  */
- const signToken = async (userId) => {
-  return await jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
-};
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const { currentPassword, confirmPassword, password, user } = req.body;
+  const check = await user.comparePassword(currentPassword, user.password);
+  if (!check) {
+    console.log(check);
+    return next(error('Permission Denied. Please enter valid password.', 401));
+  }
+  user.password = password;
+  user.confirmPassword = confirmPassword;
+  await user.save();
+  return success(res, 'Password updated successfully.');
+});
 /**
  * Reset Password Route Handler
  *
  * In this type of method we stored a reset token and a expire time in database.
  * When a user request to reset his password using forgetPassword API a token is send in email.
- * 
- * If user make it to update password a passwordUpdatedAt field is create in database using middleware
+ *
+ * If user make it to update password a passwordUpdatedAt field is create in database using middleware.
  */
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const { password, confirmPassword } = req.body;
@@ -44,10 +52,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   /* Set password updated at property */
   await user.save();
   const jwtToken = await signToken(user._id);
-  return success(res, 'Password has updated successfully.',{token: jwtToken});
+  return success(res, 'Password has updated successfully.', {
+    token: jwtToken,
+  });
 });
 /**
- * ? Forget Password Functionality
+ * Forget Password Functionality
  */
 exports.forgetPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
@@ -63,9 +73,8 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   });
   return success(res, 'Verify email has sent.');
 });
-
 /**
- * ? Signin controller method.
+ * Signin controller method.
  */
 exports.signin = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -81,7 +90,7 @@ exports.signin = catchAsync(async (req, res, next) => {
   return success(res, 'Login in successfully.', { _id, token });
 });
 /**
- * ? Sign up controller method
+ * Sign up controller method
  */
 exports.signup = catchAsync(async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;

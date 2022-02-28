@@ -1,6 +1,8 @@
 const express = require('express');
+
 const userController = require('./../controllers/userController');
 const authController = require('../controllers/authController');
+const jwtVerify = require('../middleware/jwt-verify');
 
 
 const router = express.Router();
@@ -9,6 +11,7 @@ router.post('/signin', authController.signin);
 router.post('/signup', authController.signup);
 router.post('/forgetPassword', authController.forgetPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
+router.patch('/updatePassword', jwtVerify, authController.updatePassword);
 
 router.route('/').get(userController.get_all_users).post(userController.new_user);
 router

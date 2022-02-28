@@ -34,7 +34,6 @@ exports.forgetPassword = async (options) => {
     'utf-8'
   );
   const url = process.env.URL.concat(`/overview.html/${options.resetToken}`)
-  console.log(url);
   template = template.replace('{{$name}}', options.name);
   template = template.replace('{{$url}}', url);
   const result = await sendEmail({

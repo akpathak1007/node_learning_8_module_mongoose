@@ -48,7 +48,16 @@ const userSchema = mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetTokenExpire: Date,
+  passwordChangedAt: Date
 });
+/**
+ * Middleware to adding a field to document when the password has changed.
+ */
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now();
+  next();
+})
 /**
  * Middleware to encrypt the password.
  */
@@ -56,6 +65,7 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
 });
 /** 
  * To compare a old user's password with new one.
@@ -75,7 +85,6 @@ userSchema.method('getRestPasswordToken', function (){
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
-  console.log({resetToken}, this.passwordResetToken);
   this.passwordResetTokenExpire = Date.now() + 10 * 60 * 1000;
   return resetToken;
 });

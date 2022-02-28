@@ -8,22 +8,30 @@ const error = require('../utils/app-error');
 const { forgetPassword } = require('../utils/send-email');
 
 /**
+ * ? Method to create token and add user id to payload.
+ */
+ const signToken = async (userId) => {
+  return await jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE_TIME,
+  });
+};
+/**
  * Reset Password Route Handler
  *
  * In this type of method we stored a reset token and a expire time in database.
  * When a user request to reset his password using forgetPassword API a token is send in email.
+ * 
+ * If user make it to update password a passwordUpdatedAt field is create in database using middleware
  */
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const { password, confirmPassword } = req.body;
   let { token } = req.params;
   /* Check if user token coming in the request is exist in database or not and make sure that it is not expired. */
   token = crypto.createHash('sha256').update(token).digest('hex');
-  console.log(new Date().toISOString());
   const user = await User.findOne({
     passwordResetToken: token,
     passwordResetTokenExpire: { $gt: new Date().toISOString() },
   });
-  console.log(user);
   /* If no user found in the database send an error message */
   if (!user) {
     return next(error('Token may invalid or expired. Please try again'));
@@ -35,7 +43,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetTokenExpire = undefined;
   /* Set password updated at property */
   await user.save();
-  return success(res, 'Password has updated successfully.');
+  const jwtToken = await signToken(user._id);
+  return success(res, 'Password has updated successfully.',{token: jwtToken});
 });
 /**
  * ? Forget Password Functionality
@@ -54,14 +63,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   });
   return success(res, 'Verify email has sent.');
 });
-/**
- * ? Method to create token and add user id to payload.
- */
-const signToken = async (userId) => {
-  return await jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
-};
+
 /**
  * ? Signin controller method.
  */

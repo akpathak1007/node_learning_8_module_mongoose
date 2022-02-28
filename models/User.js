@@ -48,10 +48,22 @@ const userSchema = mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetTokenExpire: Date,
-  passwordChangedAt: Date
+  passwordChangedAt: Date,
+  active: {
+    type: Boolean,
+    select: false,
+    default: true
+  }
 });
 /**
- * Middleware to adding a field to document when the password has changed.
+ * Query Middleware to make projection off of active field.
+ */
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+})
+/**
+ * Document Middleware to adding a field to document when the password has changed.
  */
 userSchema.pre('save', function(next) {
   if (!this.isModified('password') || this.isNew) return next();
@@ -59,7 +71,7 @@ userSchema.pre('save', function(next) {
   next();
 })
 /**
- * Middleware to encrypt the password.
+ * Document Middleware to encrypt the password.
  */
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();

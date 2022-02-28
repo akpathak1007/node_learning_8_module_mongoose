@@ -5,13 +5,13 @@ const User = require('../models/User');
 const success = require('../utils/success-message');
 const error = require('../utils/app-error');
 const { forgetPassword } = require('../utils/send-email');
-const { signToken } = require('../utils/helper');
+const { signToken } = require('../utils/helpers');
 
 /**
  * API patch updatePassword route handler
  * Update password when user is logged in.
  */
-exports.updatePassword = catchAsync(async (req, res, next) => {
+exports.update_password = catchAsync(async (req, res, next) => {
   const { currentPassword, confirmPassword, password, user } = req.body;
   const check = await user.comparePassword(currentPassword, user.password);
   if (!check) {
@@ -31,7 +31,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
  *
  * If user make it to update password a passwordUpdatedAt field is create in database using middleware.
  */
-exports.resetPassword = catchAsync(async (req, res, next) => {
+exports.reset_password = catchAsync(async (req, res, next) => {
   const { password, confirmPassword } = req.body;
   let { token } = req.params;
   /* Check if user token coming in the request is exist in database or not and make sure that it is not expired. */
@@ -59,7 +59,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 /**
  * Forget Password Functionality
  */
-exports.forgetPassword = catchAsync(async (req, res, next) => {
+exports.forget_password = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   if (!email) return next(error('Email is required.'));
   const user = await User.findOne({ email: email });
@@ -100,6 +100,7 @@ exports.signup = catchAsync(async (req, res) => {
     password,
     confirmPassword,
   });
+  user.password = undefined;
   const token = await signToken(user._id);
   return success(res, 'User created successfully', { token, user });
 });

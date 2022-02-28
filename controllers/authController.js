@@ -102,5 +102,13 @@ exports.signup = catchAsync(async (req, res) => {
   });
   user.password = undefined;
   const token = await signToken(user._id);
+  cookieConfig = {
+    expries: new Date(
+      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === 'production') cookieConfig.secure = true;
+  res.cookie('jwt', token, cookieConfig);
   return success(res, 'User created successfully', { token, user });
 });

@@ -6,7 +6,7 @@ const Tour = require('./../../models/Tour');
 dotenv.config({ path: './config.env' });
 
 const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, 'utf-8')
+  fs.readFileSync(`${__dirname}/tours.json`, 'utf-8')
 );
 mognoose.connect(
   process.env.DATABASE,

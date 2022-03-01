@@ -81,7 +81,8 @@ exports.signin = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(error('Password and Email must be given.'));
   }
-  const user = await User.findOne({ email }).select('password');
+  const user = await User.findOne({ email }).select('+password');
+  console.log(user);
   if (!user || !(await user.comparePassword(password, user.password))) {
     return next(error('Please enter valid password'));
   }
